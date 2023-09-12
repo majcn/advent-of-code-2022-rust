@@ -72,9 +72,10 @@ pub fn part_two(input: &str) -> Option<u32> {
         .into_iter()
         .map(|folder| calculate_size(&data, folder))
         .filter(|size| used_disk_space - size < TOTAL_DISK_SPACE - REQUIRED_DISK_SPACE)
-        .min();
+        .min()
+        .unwrap();
 
-    result
+    Some(result)
 }
 
 fn main() {

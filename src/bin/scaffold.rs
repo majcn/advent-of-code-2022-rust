@@ -8,6 +8,7 @@ use std::{
     process,
 };
 
+#[allow(clippy::needless_raw_string_hashes)]
 const MODULE_TEMPLATE: &str = r###"pub fn part_one(input: &str) -> Option<u32> {
     None
 }

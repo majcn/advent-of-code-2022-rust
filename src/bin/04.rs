@@ -2,20 +2,15 @@ use regex::Regex;
 use std::collections::BTreeSet;
 use std::ops::RangeInclusive;
 
+use advent_of_code::util::parse::ParseRegex;
+
 fn parse_data(input: &str) -> Vec<(RangeInclusive<u32>, RangeInclusive<u32>)> {
     let re = Regex::new(r"^(\d+)-(\d+),(\d+)-(\d+)$").unwrap();
 
     input
         .lines()
-        .map(|x| {
-            let captures = re.captures(x).unwrap();
-            let r1: RangeInclusive<u32> =
-                captures[1].parse().unwrap()..=captures[2].parse().unwrap();
-            let r2: RangeInclusive<u32> =
-                captures[3].parse().unwrap()..=captures[4].parse().unwrap();
-
-            (r1, r2)
-        })
+        .map(|x| re.parse_u32(x))
+        .map(|[r1_min, r1_max, r2_min, r2_max]| (r1_min..=r1_max, r2_min..=r2_max))
         .collect()
 }
 

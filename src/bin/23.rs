@@ -4,57 +4,28 @@ use std::collections::HashSet;
 use advent_of_code::util::point::Point;
 
 enum CardinalDirection {
-    NORTH,
-    SOUTH,
-    EAST,
-    WEST,
-}
-
-impl From<u8> for CardinalDirection {
-    fn from(value: u8) -> Self {
-        match value {
-            b'N' => CardinalDirection::NORTH,
-            b'S' => CardinalDirection::SOUTH,
-            b'E' => CardinalDirection::EAST,
-            b'W' => CardinalDirection::WEST,
-            _ => unreachable!(),
-        }
-    }
-}
-
-impl TryFrom<&u8> for CardinalDirection {
-    type Error = bool;
-
-    fn try_from(value: &u8) -> Result<Self, Self::Error> {
-        match value {
-            b'N' => Ok(CardinalDirection::NORTH),
-            b'S' => Ok(CardinalDirection::SOUTH),
-            b'E' => Ok(CardinalDirection::EAST),
-            b'W' => Ok(CardinalDirection::WEST),
-            _ => Err(true),
-        }
-    }
+    North,
+    South,
+    East,
+    West,
 }
 
 fn parse_data(input: &str) -> HashSet<Point> {
     let mut result = HashSet::new();
     for (y, line) in input.lines().enumerate() {
-        for (x, v) in line.as_bytes().iter().enumerate() {
-            if v == &b'#' {
-                result.insert(Point {
-                    x: x as i32,
-                    y: y as i32,
-                });
+        for (x, v) in line.chars().enumerate() {
+            if v == '#' {
+                result.insert(Point::new(x as i32, y as i32));
             }
         }
     }
     result
 }
 
-const NORTH: CardinalDirection = CardinalDirection::NORTH;
-const SOUTH: CardinalDirection = CardinalDirection::SOUTH;
-const WEST: CardinalDirection = CardinalDirection::WEST;
-const EAST: CardinalDirection = CardinalDirection::EAST;
+const NORTH: CardinalDirection = CardinalDirection::North;
+const SOUTH: CardinalDirection = CardinalDirection::South;
+const WEST: CardinalDirection = CardinalDirection::West;
+const EAST: CardinalDirection = CardinalDirection::East;
 const PRIORITIES: [[CardinalDirection; 4]; 4] = [
     [NORTH, SOUTH, WEST, EAST],
     [SOUTH, WEST, EAST, NORTH],
@@ -74,35 +45,31 @@ const NEIGHBORS_8: [Point; 8] = [
 ];
 
 fn get_next_location(elfs: &HashSet<Point>, elf: Point, priorities_index: usize) -> Option<Point> {
-    let neighbor = NEIGHBORS_8
+    NEIGHBORS_8
         .into_iter()
         .map(|x| elf + x)
-        .find(|x| elfs.contains(x));
-
-    if let None = neighbor {
-        return None;
-    }
+        .find(|x| elfs.contains(x))?;
 
     for priority in PRIORITIES[priorities_index].iter() {
         match priority {
-            CardinalDirection::NORTH => {
-                if (-1..=1).all(|x| !elfs.contains(&(elf + Point { x, y: -1 }))) {
-                    return Some(elf + Point { x: 0, y: -1 });
+            CardinalDirection::North => {
+                if (-1..=1).all(|x| !elfs.contains(&(elf + Point::new(x, -1)))) {
+                    return Some(elf + Point::new(0, -1));
                 }
             }
-            CardinalDirection::SOUTH => {
-                if (-1..=1).all(|x| !elfs.contains(&(elf + Point { x, y: 1 }))) {
-                    return Some(elf + Point { x: 0, y: 1 });
+            CardinalDirection::South => {
+                if (-1..=1).all(|x| !elfs.contains(&(elf + Point::new(x, 1)))) {
+                    return Some(elf + Point::new(0, 1));
                 }
             }
-            CardinalDirection::EAST => {
-                if (-1..=1).all(|y| !elfs.contains(&(elf + Point { x: 1, y }))) {
-                    return Some(elf + Point { x: 1, y: 0 });
+            CardinalDirection::East => {
+                if (-1..=1).all(|y| !elfs.contains(&(elf + Point::new(1, y)))) {
+                    return Some(elf + Point::new(1, 0));
                 }
             }
-            CardinalDirection::WEST => {
-                if (-1..=1).all(|y| !elfs.contains(&(elf + Point { x: -1, y }))) {
-                    return Some(elf + Point { x: -1, y: 0 });
+            CardinalDirection::West => {
+                if (-1..=1).all(|y| !elfs.contains(&(elf + Point::new(-1, y)))) {
+                    return Some(elf + Point::new(-1, 0));
                 }
             }
         }
@@ -126,7 +93,7 @@ where
                     continue;
                 }
 
-                if let Some(_) = next_locations.get(&next_elf_location) {
+                if next_locations.contains_key(&next_elf_location) {
                     next_locations.remove(&next_elf_location);
                     blocked_locations_set.insert(next_elf_location);
                     continue;

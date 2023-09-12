@@ -1,8 +1,8 @@
-fn parse_data(input: &str) -> Vec<(u8, u8)> {
+fn parse_data(input: &str) -> Vec<(char, char)> {
     input
         .lines()
         .map(|x| x.as_bytes())
-        .map(|x| (x[0], x[2]))
+        .map(|x| (x[0].into(), x[2].into()))
         .collect()
 }
 
@@ -10,17 +10,17 @@ pub fn part_one(input: &str) -> Option<u32> {
     let data = parse_data(input);
 
     // TODO: const fn VS fn?
-    fn score((x, y): (u8, u8)) -> u32 {
+    fn score((x, y): (char, char)) -> u32 {
         match (x, y) {
-            (b'A', b'X') => 3 + 1,
-            (b'A', b'Y') => 6 + 2,
-            (b'A', b'Z') => 0 + 3,
-            (b'B', b'X') => 0 + 1,
-            (b'B', b'Y') => 3 + 2,
-            (b'B', b'Z') => 6 + 3,
-            (b'C', b'X') => 6 + 1,
-            (b'C', b'Y') => 0 + 2,
-            (b'C', b'Z') => 3 + 3,
+            ('A', 'X') => 4,
+            ('A', 'Y') => 8,
+            ('A', 'Z') => 3,
+            ('B', 'X') => 1,
+            ('B', 'Y') => 5,
+            ('B', 'Z') => 9,
+            ('C', 'X') => 7,
+            ('C', 'Y') => 2,
+            ('C', 'Z') => 6,
             _ => unreachable!(),
         }
     }
@@ -33,17 +33,17 @@ pub fn part_one(input: &str) -> Option<u32> {
 pub fn part_two(input: &str) -> Option<u32> {
     let data = parse_data(input);
 
-    fn score((x, y): (u8, u8)) -> u32 {
+    fn score((x, y): (char, char)) -> u32 {
         match (x, y) {
-            (b'A', b'X') => 0 + 3,
-            (b'A', b'Y') => 3 + 1,
-            (b'A', b'Z') => 6 + 2,
-            (b'B', b'X') => 0 + 1,
-            (b'B', b'Y') => 3 + 2,
-            (b'B', b'Z') => 6 + 3,
-            (b'C', b'X') => 0 + 2,
-            (b'C', b'Y') => 3 + 3,
-            (b'C', b'Z') => 6 + 1,
+            ('A', 'X') => 3,
+            ('A', 'Y') => 4,
+            ('A', 'Z') => 8,
+            ('B', 'X') => 1,
+            ('B', 'Y') => 5,
+            ('B', 'Z') => 9,
+            ('C', 'X') => 2,
+            ('C', 'Y') => 6,
+            ('C', 'Z') => 7,
             _ => unreachable!(),
         }
     }

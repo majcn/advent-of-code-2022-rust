@@ -1,16 +1,16 @@
-use std::{
-    collections::{HashMap, HashSet, VecDeque},
-    hash::Hash,
-    ops::{Add, Rem},
-};
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::collections::VecDeque;
+use std::ops::Add;
+use std::ops::Rem;
 
 use advent_of_code::util::point::Point;
 
 enum Direction {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
+    Up,
+    Down,
+    Left,
+    Right,
 }
 
 struct BBox {
@@ -21,6 +21,7 @@ struct BBox {
 }
 
 impl BBox {
+    #[inline]
     fn contains(&self, p: &Point) -> bool {
         p.x >= self.minx && p.y <= self.maxx && p.y >= self.miny && p.y <= self.maxy
     }
@@ -30,6 +31,12 @@ struct Blizzard {
     x: usize,
     y: usize,
     direction: Direction,
+}
+
+impl Blizzard {
+    fn new(x: usize, y: usize, direction: Direction) -> Self {
+        Self { x, y, direction }
+    }
 }
 
 fn parse_data(input: &str) -> (Vec<Blizzard>, BBox) {
@@ -43,28 +50,12 @@ fn parse_data(input: &str) -> (Vec<Blizzard>, BBox) {
     let mut blizzards = vec![];
 
     for (y, line) in input.lines().enumerate() {
-        for (x, v) in line.as_bytes().iter().enumerate() {
+        for (x, v) in line.chars().enumerate() {
             match v {
-                b'^' => blizzards.push(Blizzard {
-                    x,
-                    y,
-                    direction: Direction::UP,
-                }),
-                b'v' => blizzards.push(Blizzard {
-                    x,
-                    y,
-                    direction: Direction::DOWN,
-                }),
-                b'<' => blizzards.push(Blizzard {
-                    x,
-                    y,
-                    direction: Direction::LEFT,
-                }),
-                b'>' => blizzards.push(Blizzard {
-                    x,
-                    y,
-                    direction: Direction::RIGHT,
-                }),
+                '^' => blizzards.push(Blizzard::new(x, y, Direction::Up)),
+                'v' => blizzards.push(Blizzard::new(x, y, Direction::Down)),
+                '<' => blizzards.push(Blizzard::new(x, y, Direction::Left)),
+                '>' => blizzards.push(Blizzard::new(x, y, Direction::Right)),
                 _ => {}
             }
         }
@@ -137,13 +128,13 @@ fn get_neighbors(
             }];
         }
 
-        if !new_blizzards.contains(&new_location) {
-            if &new_location == start_location || blizzards_bbox.contains(&new_location) {
-                result.push(GraphNode {
-                    location: new_location,
-                    blizzards_index: new_blizzards_index,
-                });
-            }
+        if !new_blizzards.contains(&new_location)
+            && (&new_location == start_location || blizzards_bbox.contains(&new_location))
+        {
+            result.push(GraphNode {
+                location: new_location,
+                blizzards_index: new_blizzards_index,
+            });
         }
     }
 
@@ -165,19 +156,19 @@ fn get_blizzard_locations(
     blizzards
         .iter()
         .map(|b| match b.direction {
-            Direction::UP => Point {
+            Direction::Up => Point {
                 x: b.x as i32,
                 y: python_like_mod(b.y as i32 - 1 - time as i32, y_blizzard_path) + 1,
             },
-            Direction::DOWN => Point {
+            Direction::Down => Point {
                 x: b.x as i32,
                 y: python_like_mod(b.y as i32 - 1 + time as i32, y_blizzard_path) + 1,
             },
-            Direction::LEFT => Point {
+            Direction::Left => Point {
                 x: python_like_mod(b.x as i32 - 1 - time as i32, x_blizzard_path) + 1,
                 y: b.y as i32,
             },
-            Direction::RIGHT => Point {
+            Direction::Right => Point {
                 x: python_like_mod(b.x as i32 - 1 + time as i32, x_blizzard_path) + 1,
                 y: b.y as i32,
             },
@@ -202,12 +193,9 @@ impl<'a, 'b> BlizzardLocations<'a, 'b> {
     }
 
     fn get_locations(&mut self, i: usize) -> &HashSet<Point> {
-        if !self.cache.contains_key(&i) {
-            let locations = get_blizzard_locations(self.blizzards_bbox, self.blizzards, i);
-            self.cache.insert(i, locations);
-        }
-
-        &self.cache[&i]
+        self.cache
+            .entry(i)
+            .or_insert_with(|| get_blizzard_locations(self.blizzards_bbox, self.blizzards, i))
     }
 }
 

@@ -26,48 +26,43 @@ impl<T> Array2D<T> {
         self.raw_data.len() / self.line_size
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.raw_data.is_empty()
+    }
+
     pub fn len_line(&self) -> usize {
         self.line_size
     }
 
     pub fn iter_keys(&self) -> Array2DIterKeys<T> {
-        Array2DIterKeys {
-            data: self,
-            x: 0,
-            y: 0,
-        }
+        Array2DIterKeys { data: self, i: 0 }
     }
 }
 
 impl<T> std::ops::Index<(usize, usize)> for Array2D<T> {
     type Output = T;
-    fn index(&self, index: (usize, usize)) -> &T {
+
+    #[inline]
+    fn index(&self, index: (usize, usize)) -> &Self::Output {
         &self.raw_data[index.1 * self.line_size + index.0]
     }
 }
 
 pub struct Array2DIterKeys<'a, T> {
     data: &'a Array2D<T>,
-    x: usize,
-    y: usize,
+    i: usize,
 }
 
-impl<'a, T> Iterator for Array2DIterKeys<'a, T> {
+impl<T> Iterator for Array2DIterKeys<'_, T> {
     type Item = (usize, usize);
 
     fn next(&mut self) -> Option<Self::Item> {
-        let result = (self.x, self.y);
-
-        if self.x < self.data.len_line() - 1 {
-            self.x += 1;
-        } else {
-            self.x = 0;
-            self.y += 1;
-        }
-
-        if self.y == self.data.len() {
+        if self.i == self.data.raw_data.len() {
             return None;
         }
+
+        let result = (self.i % self.data.line_size, self.i / self.data.line_size);
+        self.i += 1;
 
         Some(result)
     }

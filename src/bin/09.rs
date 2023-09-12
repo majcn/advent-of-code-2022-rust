@@ -14,7 +14,7 @@ struct Command {
 fn parse_data(input: &str) -> Vec<Command> {
     input
         .lines()
-        .map(|x| x.split_once(" ").unwrap())
+        .map(|x| x.split_once(' ').unwrap())
         .map(|x| Command {
             direction: x.0.as_bytes()[0],
             steps: x.1.parse().unwrap(),
@@ -38,24 +38,20 @@ fn part_x<const N: usize>(data: &[Command]) -> u32 {
             }
 
             for i in 1..N {
-                let head = rope[(i - 1) as usize];
-                let tail = &mut rope[i as usize];
+                let head = rope[i - 1];
+                let tail = &mut rope[i];
 
                 if (head.x - tail.x).abs() > 1 || (head.y - tail.y).abs() > 1 {
-                    let diff_x = if head.x < tail.x {
-                        -1
-                    } else if head.x > tail.x {
-                        1
-                    } else {
-                        0
+                    let diff_x = match Ord::cmp(&head.x, &tail.x) {
+                        std::cmp::Ordering::Less => -1,
+                        std::cmp::Ordering::Greater => 1,
+                        std::cmp::Ordering::Equal => 0,
                     };
 
-                    let diff_y = if head.y < tail.y {
-                        -1
-                    } else if head.y > tail.y {
-                        1
-                    } else {
-                        0
+                    let diff_y = match Ord::cmp(&head.y, &tail.y) {
+                        std::cmp::Ordering::Less => -1,
+                        std::cmp::Ordering::Greater => 1,
+                        std::cmp::Ordering::Equal => 0,
                     };
 
                     *tail += Point::new(diff_x, diff_y);

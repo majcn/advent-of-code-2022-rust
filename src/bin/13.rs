@@ -34,7 +34,7 @@ fn parse_package(package: &str) -> Node {
             }
             b'0'..=b'9' => {
                 let mut number = 0;
-                for x in package.iter().skip(i) {
+                for x in package[i..].iter() {
                     if x.is_ascii_digit() {
                         number = (number * 10) + (x - b'0') as u32;
                         i += 1;
@@ -58,7 +58,7 @@ fn parse_data(input: &str) -> Vec<(Node, Node)> {
     let result = input
         .split("\n\n")
         .map(|x| {
-            let (left, right) = x.split_once("\n").unwrap();
+            let (left, right) = x.split_once('\n').unwrap();
             (parse_package(left), parse_package(right))
         })
         .collect();
@@ -68,18 +68,18 @@ fn parse_data(input: &str) -> Vec<(Node, Node)> {
 
 fn compare(left: &Node, right: &Node) -> Ordering {
     let (left_iterator, left_size): (Box<dyn Iterator<Item = &Node>>, usize) = match left {
-        Node::Array(v) => (Box::new(v.into_iter()), v.len()),
+        Node::Array(v) => (Box::new(v.iter()), v.len()),
         Node::Value(_) => (Box::new(std::iter::once(left)), 1),
     };
 
     let (right_iterator, right_size): (Box<dyn Iterator<Item = &Node>>, usize) = match right {
-        Node::Array(v) => (Box::new(v.into_iter()), v.len()),
+        Node::Array(v) => (Box::new(v.iter()), v.len()),
         Node::Value(_) => (Box::new(std::iter::once(right)), 1),
     };
 
     for (left_el, right_el) in left_iterator.zip(right_iterator) {
         let result = match (left_el, right_el) {
-            (Node::Value(vl), Node::Value(vr)) => vl.cmp(vr),
+            (Node::Value(vl), Node::Value(vr)) => Ord::cmp(vl, vr),
             _ => compare(left_el, right_el),
         };
 
@@ -106,8 +106,8 @@ pub fn part_one(input: &str) -> Option<u32> {
 
 pub fn part_two(input: &str) -> Option<u32> {
     enum NodeWithMark {
-        PACKAGE(Node),
-        DIVIDER(Node),
+        Package(Node),
+        Divider(Node),
     }
 
     let data = parse_data(input);
@@ -117,33 +117,30 @@ pub fn part_two(input: &str) -> Option<u32> {
 
     let mut all_packages = Vec::with_capacity(data.len() * 2 + 2);
     for (left, right) in data {
-        all_packages.push(NodeWithMark::PACKAGE(left));
-        all_packages.push(NodeWithMark::PACKAGE(right));
+        all_packages.push(NodeWithMark::Package(left));
+        all_packages.push(NodeWithMark::Package(right));
     }
-    all_packages.push(NodeWithMark::DIVIDER(divider1));
-    all_packages.push(NodeWithMark::DIVIDER(divider2));
+    all_packages.push(NodeWithMark::Divider(divider1));
+    all_packages.push(NodeWithMark::Divider(divider2));
 
     all_packages.sort_unstable_by(|left, right| {
         let left = match left {
-            NodeWithMark::PACKAGE(v) => v,
-            NodeWithMark::DIVIDER(v) => v,
+            NodeWithMark::Package(v) => v,
+            NodeWithMark::Divider(v) => v,
         };
 
         let right = match right {
-            NodeWithMark::PACKAGE(v) => v,
-            NodeWithMark::DIVIDER(v) => v,
+            NodeWithMark::Package(v) => v,
+            NodeWithMark::Divider(v) => v,
         };
 
-        left.cmp(&right)
+        Ord::cmp(left, right)
     });
 
     let result = all_packages
         .iter()
         .enumerate()
-        .filter(|x| match x.1 {
-            NodeWithMark::DIVIDER(_) => true,
-            _ => false,
-        })
+        .filter(|x| matches!(x.1, NodeWithMark::Divider(_)))
         .map(|x| (x.0 + 1) as u32)
         .product();
 

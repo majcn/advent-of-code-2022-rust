@@ -1,22 +1,16 @@
 use std::collections::HashSet;
 
 use advent_of_code::util::point::Point;
-use regex::Regex;
 
 fn parse_data(input: &str) -> Vec<Vec<Point>> {
-    let re = Regex::new(r"(\d+),(\d+)").unwrap();
+    fn parse_line(line: &str) -> Vec<Point> {
+        line.split(" -> ")
+            .map(|p| p.split_once(',').unwrap())
+            .map(|(x, y)| Point::new(x.parse().unwrap(), y.parse().unwrap()))
+            .collect()
+    }
 
-    input
-        .lines()
-        .map(|x| {
-            re.captures_iter(x)
-                .map(|x| Point {
-                    x: x[1].parse().unwrap(),
-                    y: x[2].parse().unwrap(),
-                })
-                .collect()
-        })
-        .collect()
+    input.lines().map(parse_line).collect()
 }
 
 fn build_grid(data: Vec<Vec<Point>>) -> HashSet<Point> {
@@ -31,7 +25,7 @@ fn build_grid(data: Vec<Vec<Point>>) -> HashSet<Point> {
             let end_y = i32::max(start.y, end.y);
             for x in start_x..=end_x {
                 for y in start_y..=end_y {
-                    grid.insert(Point { x, y });
+                    grid.insert(Point::new(x, y));
                 }
             }
         }
@@ -47,13 +41,13 @@ where
 
     let max_y = grid.iter().map(|p| p.y).max().unwrap();
 
-    let location_down = Point { x: 0, y: 1 };
-    let location_down_left = Point { x: -1, y: 1 };
-    let location_down_right = Point { x: 1, y: 1 };
+    let location_down = Point::new(0, 1);
+    let location_down_left = Point::new(-1, 1);
+    let location_down_right = Point::new(1, 1);
 
     let mut i = 0;
     loop {
-        let mut sand = Point { x: 500, y: 0 };
+        let mut sand = Point::new(500, 0);
         while sand.y != max_y + 1 {
             let mut next_sand = sand + location_down;
             if grid.contains(&next_sand) {
@@ -88,7 +82,7 @@ pub fn part_one(input: &str) -> Option<u32> {
 pub fn part_two(input: &str) -> Option<u32> {
     let data = parse_data(input);
 
-    let goal = Point { x: 500, y: 0 };
+    let goal = Point::new(500, 0);
     let result = part_x(data, |sand, _| sand == goal) + 1;
 
     Some(result)

@@ -1,9 +1,8 @@
-use std::{
-    collections::{HashSet, VecDeque},
-    vec,
-};
-
 use regex::Regex;
+use std::collections::HashSet;
+use std::collections::VecDeque;
+
+use advent_of_code::util::parse::ParseRegex;
 
 struct Blueprint {
     id: u32,
@@ -30,27 +29,11 @@ fn parse_data(input: &str) -> Vec<Blueprint> {
 
     input
         .lines()
-        .map(|x| {
-            let captures = re.captures(x).unwrap();
-
-            let id = captures[1].parse().unwrap();
-            let ore_robot_cost_ore = captures[2].parse().unwrap();
-            let clay_robot_cost_ore = captures[3].parse().unwrap();
-            let obsidian_robot_cost_ore = captures[4].parse().unwrap();
-            let obsidian_robot_cost_clay = captures[5].parse().unwrap();
-            let geode_robot_cost_ore = captures[6].parse().unwrap();
-            let geode_robot_cost_obsidian = captures[7].parse().unwrap();
+        .map(|x| re.parse_u32::<7>(x))
+        .map(|[id, ore_robot_cost_ore, clay_robot_cost_ore, obsidian_robot_cost_ore, obsidian_robot_cost_clay, geode_robot_cost_ore, geode_robot_cost_obsidian]| {
             let max_obsidian_cost = geode_robot_cost_obsidian;
             let max_clay_cost = obsidian_robot_cost_clay;
-            let max_ore_cost = [
-                ore_robot_cost_ore,
-                clay_robot_cost_ore,
-                obsidian_robot_cost_ore,
-                geode_robot_cost_ore,
-            ]
-            .into_iter()
-            .max()
-            .unwrap();
+            let max_ore_cost = [ore_robot_cost_ore, clay_robot_cost_ore, obsidian_robot_cost_ore, geode_robot_cost_ore].into_iter().max().unwrap();
 
             Blueprint {
                 id,
@@ -68,7 +51,7 @@ fn parse_data(input: &str) -> Vec<Blueprint> {
         .collect()
 }
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Default, Clone, Copy, PartialEq, Eq, Hash)]
 struct State {
     time: u32,
     ore: u32,
@@ -200,15 +183,15 @@ fn can_be_discarded(
     calculated_state_geode <= best_result.geode as i32
 }
 
-struct DFS<'a> {
+struct Dfs {
     init_state: State,
-    blueprint: &'a Blueprint,
+    blueprint: Blueprint,
     max_time: u32,
     best_result: State,
     discovered: HashSet<State>,
 }
 
-impl<'a> DFS<'a> {
+impl Dfs {
     fn find_best(&mut self) -> State {
         let mut queue = VecDeque::new();
         queue.push_front(self.init_state);
@@ -216,7 +199,7 @@ impl<'a> DFS<'a> {
         while let Some(current_state) = queue.pop_front() {
             self.discovered.insert(current_state);
 
-            for n in get_next_states(self.blueprint, &current_state)
+            for n in get_next_states(&self.blueprint, &current_state)
                 .into_iter()
                 .rev()
             {
@@ -231,7 +214,7 @@ impl<'a> DFS<'a> {
                     continue;
                 }
 
-                if can_be_discarded(&n, &self.best_result, self.blueprint, self.max_time) {
+                if can_be_discarded(&n, &self.best_result, &self.blueprint, self.max_time) {
                     continue;
                 }
 
@@ -243,8 +226,8 @@ impl<'a> DFS<'a> {
     }
 }
 
-fn find_max_geodes<const MAX_TIME: u32>(blueprint: &Blueprint) -> u32 {
-    let mut dfs = DFS {
+fn find_max_geodes<const MAX_TIME: u32>(blueprint: Blueprint) -> u32 {
+    let mut dfs = Dfs {
         init_state: State {
             ore_robots: 1,
             ..Default::default()
@@ -255,13 +238,16 @@ fn find_max_geodes<const MAX_TIME: u32>(blueprint: &Blueprint) -> u32 {
         discovered: HashSet::new(),
     };
 
-    dfs.find_best().geode as u32
+    dfs.find_best().geode
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
     let data = parse_data(input);
 
-    let result = data.iter().map(|b| b.id * find_max_geodes::<24>(b)).sum();
+    let result = data
+        .into_iter()
+        .map(|b| b.id * find_max_geodes::<24>(b))
+        .sum();
 
     Some(result)
 }
@@ -270,9 +256,9 @@ pub fn part_two(input: &str) -> Option<u32> {
     let data = parse_data(input);
 
     let result = data
-        .iter()
+        .into_iter()
         .take(3)
-        .map(|b| find_max_geodes::<32>(b))
+        .map(find_max_geodes::<32>)
         .product();
 
     Some(result)

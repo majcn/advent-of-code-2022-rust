@@ -1,22 +1,18 @@
-use std::vec;
-
-pub struct Grid<T> {
+pub struct ArenaTree<T> {
     arena: Vec<Node<T>>,
 }
 
 struct Node<T> {
-    // idx: usize,
     value: T,
     parent: Option<usize>,
     children: Vec<usize>,
 }
 
-impl<T> Grid<T> {
+impl<T> ArenaTree<T> {
     pub fn new(value: T) -> Self {
-        Grid {
+        ArenaTree {
             arena: vec![Node {
-                // idx: 0,
-                value: value,
+                value,
                 parent: None,
                 children: vec![],
             }],
@@ -27,8 +23,7 @@ impl<T> Grid<T> {
         let new_node_idx = self.arena.len();
 
         let new_node = Node {
-            // idx: new_node_idx,
-            value: value,
+            value,
             parent: Some(node),
             children: vec![],
         };
@@ -36,10 +31,6 @@ impl<T> Grid<T> {
         self.arena.push(new_node);
         self.arena[node].children.push(new_node_idx);
         new_node_idx
-    }
-
-    pub fn get(&self, node: usize) -> &T {
-        &self.arena[node].value
     }
 
     pub fn get_parent(&self, node: usize) -> Option<usize> {
@@ -54,11 +45,16 @@ impl<T> Grid<T> {
         !self.arena[node].children.is_empty()
     }
 
-    pub fn get_values(&self) -> Vec<(usize, &T)> {
-        self.arena
-            .iter()
-            .enumerate()
-            .map(|(i, node)| (i, &node.value))
-            .collect()
+    pub fn iter(&self) -> impl Iterator<Item = &T> {
+        self.arena.iter().map(|x| &x.value)
+    }
+}
+
+impl<T> std::ops::Index<usize> for ArenaTree<T> {
+    type Output = T;
+
+    #[inline]
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.arena[index].value
     }
 }

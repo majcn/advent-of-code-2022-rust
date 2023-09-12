@@ -1,21 +1,21 @@
 use advent_of_code::util::list::Array2D;
 
 enum Cell {
-    WALL,
-    SPACE,
-    NONE,
+    Wall,
+    Space,
+    None,
 }
 
 enum Direction {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
+    Up,
+    Down,
+    Left,
+    Right,
 }
 
 enum Rotation {
-    CLOCKWISE,
-    COUNTERCLOCKWISE,
+    Clockwise,
+    CounterClockwise,
 }
 
 enum Command {
@@ -29,13 +29,13 @@ fn parse_data(input: &str) -> (Vec<Command>, Array2D<Cell>) {
 
     let (left_part, right_part) = input.split_once("\n\n").unwrap();
 
-    let none_repeat_iter = std::iter::repeat_with(|| Cell::NONE);
+    let none_repeat_iter = std::iter::repeat_with(|| Cell::None);
 
     for line in left_part.lines() {
-        let line_iter = line.as_bytes().into_iter().map(|x| match x {
-            b'#' => Cell::WALL,
-            b'.' => Cell::SPACE,
-            _ => Cell::NONE,
+        let line_iter = line.chars().map(|x| match x {
+            '#' => Cell::Wall,
+            '.' => Cell::Space,
+            _ => Cell::None,
         });
 
         grid.add_line(line_iter.chain(none_repeat_iter).take(line_size))
@@ -51,8 +51,8 @@ fn parse_data(input: &str) -> (Vec<Command>, Array2D<Cell>) {
             commands.push(Command::Move(counter));
             counter = 0;
             let rotation = match el {
-                b'R' => Rotation::CLOCKWISE,
-                b'L' => Rotation::COUNTERCLOCKWISE,
+                b'R' => Rotation::Clockwise,
+                b'L' => Rotation::CounterClockwise,
                 _ => unreachable!(),
             };
             commands.push(Command::ChangeDirection(rotation));
@@ -66,23 +66,23 @@ fn parse_data(input: &str) -> (Vec<Command>, Array2D<Cell>) {
 
 const fn next_direction(direction: &Direction, rotation: &Rotation) -> Direction {
     match (direction, rotation) {
-        (Direction::LEFT, Rotation::COUNTERCLOCKWISE) => Direction::DOWN,
-        (Direction::LEFT, Rotation::CLOCKWISE) => Direction::UP,
-        (Direction::RIGHT, Rotation::COUNTERCLOCKWISE) => Direction::UP,
-        (Direction::RIGHT, Rotation::CLOCKWISE) => Direction::DOWN,
-        (Direction::UP, Rotation::COUNTERCLOCKWISE) => Direction::LEFT,
-        (Direction::UP, Rotation::CLOCKWISE) => Direction::RIGHT,
-        (Direction::DOWN, Rotation::COUNTERCLOCKWISE) => Direction::RIGHT,
-        (Direction::DOWN, Rotation::CLOCKWISE) => Direction::LEFT,
+        (Direction::Left, Rotation::CounterClockwise) => Direction::Down,
+        (Direction::Left, Rotation::Clockwise) => Direction::Up,
+        (Direction::Right, Rotation::CounterClockwise) => Direction::Up,
+        (Direction::Right, Rotation::Clockwise) => Direction::Down,
+        (Direction::Up, Rotation::CounterClockwise) => Direction::Left,
+        (Direction::Up, Rotation::Clockwise) => Direction::Right,
+        (Direction::Down, Rotation::CounterClockwise) => Direction::Right,
+        (Direction::Down, Rotation::Clockwise) => Direction::Left,
     }
 }
 
 fn calculate_score(x: usize, y: usize, direction: Direction) -> u32 {
     let facing_score = match direction {
-        Direction::RIGHT => 0,
-        Direction::DOWN => 1,
-        Direction::LEFT => 2,
-        Direction::UP => 3,
+        Direction::Right => 0,
+        Direction::Down => 1,
+        Direction::Left => 2,
+        Direction::Up => 3,
     };
 
     4 * (x as u32 + 1) + 1000 * (y as u32 + 1) + facing_score
@@ -94,12 +94,9 @@ where
 {
     let (mut x, mut y) = grid
         .iter_keys()
-        .find(|&key| match grid[key] {
-            Cell::SPACE => true,
-            _ => false,
-        })
+        .find(|&key| matches!(grid[key], Cell::Space))
         .unwrap();
-    let mut direction = Direction::RIGHT;
+    let mut direction = Direction::Right;
 
     for command in commands {
         match command {
@@ -109,7 +106,7 @@ where
             Command::Move(c) => {
                 for _ in 0..*c {
                     let (nx, ny, nd) = next_state_f(grid, x, y, &direction);
-                    if let Cell::WALL = grid[(nx, ny)] {
+                    if let Cell::Wall = grid[(nx, ny)] {
                         break;
                     } else {
                         x = nx;
@@ -135,28 +132,28 @@ fn next_state_part_one(
 
     loop {
         (x, y) = match direction {
-            Direction::UP => {
+            Direction::Up => {
                 if y == 0 {
                     (x, grid.len() - 1)
                 } else {
                     (x, y - 1)
                 }
             }
-            Direction::DOWN => {
+            Direction::Down => {
                 if y == grid.len() - 1 {
                     (x, 0)
                 } else {
                     (x, y + 1)
                 }
             }
-            Direction::LEFT => {
+            Direction::Left => {
                 if x == 0 {
                     (grid.len_line() - 1, y)
                 } else {
                     (x - 1, y)
                 }
             }
-            Direction::RIGHT => {
+            Direction::Right => {
                 if x == grid.len_line() - 1 {
                     (0, y)
                 } else {
@@ -166,20 +163,19 @@ fn next_state_part_one(
         };
 
         match grid[(x, y)] {
-            Cell::NONE => continue,
+            Cell::None => continue,
             _ => break,
         };
     }
 
     match direction {
-        Direction::UP => (x, y, Direction::UP),
-        Direction::DOWN => (x, y, Direction::DOWN),
-        Direction::LEFT => (x, y, Direction::LEFT),
-        Direction::RIGHT => (x, y, Direction::RIGHT),
+        Direction::Up => (x, y, Direction::Up),
+        Direction::Down => (x, y, Direction::Down),
+        Direction::Left => (x, y, Direction::Left),
+        Direction::Right => (x, y, Direction::Right),
     }
 }
 
-#[allow(unused_comparisons)]
 fn next_state_part_two(
     _: &Array2D<Cell>,
     x: usize,
@@ -187,24 +183,24 @@ fn next_state_part_two(
     direction: &Direction,
 ) -> (usize, usize, Direction) {
     match (x, y, direction) {
-        (50, 0..=49, Direction::LEFT) => (0, 149 - y, Direction::RIGHT),
-        (50..=99, 0, Direction::UP) => (0, x + 100, Direction::RIGHT),
-        (100..=149, 0, Direction::UP) => (x - 100, 199, Direction::UP),
-        (149, 0..=49, Direction::RIGHT) => (99, 149 - y, Direction::LEFT),
-        (100..=149, 49, Direction::DOWN) => (99, x - 50, Direction::LEFT),
-        (99, 50..=99, Direction::RIGHT) => (y + 50, 49, Direction::UP),
-        (50, 50..=99, Direction::LEFT) => (y - 50, 100, Direction::DOWN),
-        (99, 100..=149, Direction::RIGHT) => (149, 149 - y, Direction::LEFT),
-        (50..=99, 149, Direction::DOWN) => (49, x + 100, Direction::LEFT),
-        (49, 150..=199, Direction::RIGHT) => (y - 100, 149, Direction::UP),
-        (0..=49, 199, Direction::DOWN) => (x + 100, 0, Direction::DOWN),
-        (0, 150..=199, Direction::LEFT) => (y - 100, 0, Direction::DOWN),
-        (0, 100..=149, Direction::LEFT) => (50, 149 - y, Direction::RIGHT),
-        (0..=49, 100, Direction::UP) => (50, x + 50, Direction::RIGHT),
-        (_, _, Direction::UP) => (x, y - 1, Direction::UP),
-        (_, _, Direction::DOWN) => (x, y + 1, Direction::DOWN),
-        (_, _, Direction::LEFT) => (x - 1, y, Direction::LEFT),
-        (_, _, Direction::RIGHT) => (x + 1, y, Direction::RIGHT),
+        (50, 0..=49, Direction::Left) => (0, 149 - y, Direction::Right),
+        (50..=99, 0, Direction::Up) => (0, x + 100, Direction::Right),
+        (100..=149, 0, Direction::Up) => (x - 100, 199, Direction::Up),
+        (149, 0..=49, Direction::Right) => (99, 149 - y, Direction::Left),
+        (100..=149, 49, Direction::Down) => (99, x - 50, Direction::Left),
+        (99, 50..=99, Direction::Right) => (y + 50, 49, Direction::Up),
+        (50, 50..=99, Direction::Left) => (y - 50, 100, Direction::Down),
+        (99, 100..=149, Direction::Right) => (149, 149 - y, Direction::Left),
+        (50..=99, 149, Direction::Down) => (49, x + 100, Direction::Left),
+        (49, 150..=199, Direction::Right) => (y - 100, 149, Direction::Up),
+        (0..=49, 199, Direction::Down) => (x + 100, 0, Direction::Down),
+        (0, 150..=199, Direction::Left) => (y - 100, 0, Direction::Down),
+        (0, 100..=149, Direction::Left) => (50, 149 - y, Direction::Right),
+        (0..=49, 100, Direction::Up) => (50, x + 50, Direction::Right),
+        (_, _, Direction::Up) => (x, y - 1, Direction::Up),
+        (_, _, Direction::Down) => (x, y + 1, Direction::Down),
+        (_, _, Direction::Left) => (x - 1, y, Direction::Left),
+        (_, _, Direction::Right) => (x + 1, y, Direction::Right),
     }
 }
 

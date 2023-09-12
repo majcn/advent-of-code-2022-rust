@@ -1,27 +1,25 @@
 use regex::Regex;
 
-#[derive(Clone, Debug)]
 enum Operation {
-    POW2,
-    ADD(u128),
-    MUL(u128),
+    Pow2,
+    Add(u64),
+    Mul(u64),
 }
 
-#[derive(Clone, Debug)]
 struct Monkey {
-    items: Vec<u128>,
+    items: Vec<u64>,
     operation: Operation,
-    test_devided_by: u128,
+    test_devided_by: u64,
     test_true: usize,
     test_false: usize,
 }
 
 impl Monkey {
-    fn execute_operation(&self, x: u128) -> u128 {
+    fn execute_operation(&self, x: u64) -> u64 {
         match self.operation {
-            Operation::POW2 => x * x,
-            Operation::ADD(v) => x + v,
-            Operation::MUL(v) => x * v,
+            Operation::Pow2 => x * x,
+            Operation::Add(v) => x + v,
+            Operation::Mul(v) => x * v,
         }
     }
 }
@@ -54,12 +52,12 @@ fn parse_data(input: &str) -> Vec<Monkey> {
                 .map(|x| x[1].parse().unwrap())
                 .unwrap();
 
-            let operation = if operation_parameters[2].eq("old") {
-                Operation::POW2
-            } else if operation_parameters[1].eq("+") {
-                Operation::ADD(operation_parameters[2].parse().unwrap())
+            let operation = if &operation_parameters[2] == "old" {
+                Operation::Pow2
+            } else if &operation_parameters[1] == "+" {
+                Operation::Add(operation_parameters[2].parse().unwrap())
             } else {
-                Operation::MUL(operation_parameters[2].parse().unwrap())
+                Operation::Mul(operation_parameters[2].parse().unwrap())
             };
 
             Monkey {
@@ -74,12 +72,10 @@ fn parse_data(input: &str) -> Vec<Monkey> {
 }
 
 // TODO: a se da to nekako preko iteratorja namest 0..monkeys.len()
-fn part_x<const ROUNDS: usize, const WORRY_LEVEL_DIVISOR: u128>(monkeys: &[Monkey]) -> u128 {
-    let mut monkeys = monkeys.to_vec(); // TODO: ne razumem zakaj ne morm dat copied, lahko pa dam clone
+fn part_x<const ROUNDS: usize, const WORRY_LEVEL_DIVISOR: u64>(monkeys: &mut Vec<Monkey>) -> u64 {
+    let magic_number = monkeys.iter().map(|m| m.test_devided_by).product::<u64>();
 
-    let magic_number = monkeys.iter().map(|m| m.test_devided_by).product::<u128>();
-
-    let mut inspected_items: Vec<u128> = vec![0; monkeys.len()];
+    let mut inspected_items: Vec<u64> = vec![0; monkeys.len()];
 
     for _ in 0..ROUNDS {
         for monkey_index in 0..monkeys.len() {
@@ -100,25 +96,21 @@ fn part_x<const ROUNDS: usize, const WORRY_LEVEL_DIVISOR: u128>(monkeys: &[Monke
     }
 
     inspected_items.sort_unstable();
-    inspected_items
-        .iter() // TODO: iter vs into_iter?
-        .rev()
-        .take(2)
-        .product()
+    inspected_items.into_iter().rev().take(2).product()
 }
 
-pub fn part_one(input: &str) -> Option<u128> {
-    let data = parse_data(input);
+pub fn part_one(input: &str) -> Option<u64> {
+    let mut data = parse_data(input);
 
-    let result = part_x::<20, 3>(&data);
+    let result = part_x::<20, 3>(&mut data);
 
     Some(result)
 }
 
-pub fn part_two(input: &str) -> Option<u128> {
-    let data = parse_data(input);
+pub fn part_two(input: &str) -> Option<u64> {
+    let mut data = parse_data(input);
 
-    let result = part_x::<10000, 1>(&data);
+    let result = part_x::<10000, 1>(&mut data);
 
     Some(result)
 }

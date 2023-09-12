@@ -1,14 +1,13 @@
-use std::collections::HashMap;
-
 use regex::Regex;
+use std::collections::HashMap;
 
 type NodeId = [u8; 4];
 
 enum Operator {
-    MUL,
-    DIV,
-    ADD,
-    SUB,
+    Mul,
+    Div,
+    Add,
+    Sub,
 }
 
 enum Node {
@@ -32,10 +31,10 @@ fn parse_data(input: &str) -> HashMap<NodeId, Node> {
                 let left = captures[2].as_bytes().try_into().unwrap();
                 let right = captures[4].as_bytes().try_into().unwrap();
                 let operator = match &captures[3] {
-                    "+" => Operator::ADD,
-                    "-" => Operator::SUB,
-                    "*" => Operator::MUL,
-                    "/" => Operator::DIV,
+                    "+" => Operator::Add,
+                    "-" => Operator::Sub,
+                    "*" => Operator::Mul,
+                    "/" => Operator::Div,
                     _ => unreachable!(),
                 };
 
@@ -67,10 +66,10 @@ fn solve_equation(
     let right_solved = solve_node(data, right);
 
     match op {
-        Operator::MUL => left_solved * right_solved,
-        Operator::DIV => left_solved / right_solved,
-        Operator::ADD => left_solved + right_solved,
-        Operator::SUB => left_solved - right_solved,
+        Operator::Mul => left_solved * right_solved,
+        Operator::Div => left_solved / right_solved,
+        Operator::Add => left_solved + right_solved,
+        Operator::Sub => left_solved - right_solved,
     }
 }
 

@@ -1,9 +1,13 @@
-use std::{
-    cmp::Ordering,
-    collections::{BinaryHeap, HashMap, HashSet},
-};
+use std::cmp::Ordering;
+use std::collections::BinaryHeap;
+use std::collections::HashMap;
+use std::collections::HashSet;
 
-use advent_of_code::util::point::{Point, DOWN, LEFT, RIGHT, UP};
+use advent_of_code::util::point::Point;
+use advent_of_code::util::point::DOWN;
+use advent_of_code::util::point::LEFT;
+use advent_of_code::util::point::RIGHT;
+use advent_of_code::util::point::UP;
 
 struct Node {
     mark: u8,
@@ -23,8 +27,8 @@ type Arena = HashMap<Point, Node>;
 
 fn parse_data(input: &str) -> (Point, Point, Arena) {
     let mut arena = HashMap::with_capacity(input.len());
-    let mut start_node = Point { x: 0, y: 0 };
-    let mut end_node = Point { x: 0, y: 0 };
+    let mut start_node = Point::new(0, 0);
+    let mut end_node = Point::new(0, 0);
 
     for (y, line) in input.lines().enumerate() {
         let y = y as i32;
@@ -32,16 +36,16 @@ fn parse_data(input: &str) -> (Point, Point, Arena) {
             let x = x as i32; // TODO: se da to lepse napisat?
             let node = match v {
                 b'S' => {
-                    start_node = Point { x, y };
+                    start_node = Point::new(x, y);
                     Node::new(b'a')
                 }
                 b'E' => {
-                    end_node = Point { x, y };
+                    end_node = Point::new(x, y);
                     Node::new(b'z')
                 }
                 _ => Node::new(*v),
             };
-            arena.insert(Point { x, y }, node);
+            arena.insert(Point::new(x, y), node);
         }
     }
 
@@ -49,10 +53,9 @@ fn parse_data(input: &str) -> (Point, Point, Arena) {
     // jamra zaradi mutacije v arena
     let all_locations = arena.keys().copied().collect::<Vec<_>>();
 
-    let directions = [LEFT, RIGHT, UP, DOWN];
     for p in all_locations {
         let mut p_node = arena.remove(&p).unwrap();
-        for direction in directions {
+        for direction in [LEFT, RIGHT, UP, DOWN] {
             let new_p = p + direction;
             if arena.contains_key(&new_p) {
                 let new_p_node = arena.get(&new_p).unwrap();
@@ -113,7 +116,7 @@ fn a_star_search_algorithm(arena: &Arena, start_node: &Point, end_node: &Point) 
 
         open_set.remove(current);
         for neighbor_index in arena[current].neighbors.iter() {
-            let tentative_g_score = g_score.get(current).unwrap() + d(&current, neighbor_index);
+            let tentative_g_score = g_score.get(current).unwrap() + d(current, neighbor_index);
             let g_score_value = g_score.get(neighbor_index).copied().unwrap_or(u32::MAX); // TODO: je treba kopirat?
             if tentative_g_score >= g_score_value {
                 continue;

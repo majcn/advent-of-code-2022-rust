@@ -14,7 +14,7 @@ fn part_x<const N: usize>(data: &[u8]) -> u32 {
 pub fn part_one(input: &str) -> Option<u32> {
     let data = parse_data(input);
 
-    let result = part_x::<4>(&data);
+    let result = part_x::<4>(data);
 
     Some(result)
 }
@@ -22,7 +22,7 @@ pub fn part_one(input: &str) -> Option<u32> {
 pub fn part_two(input: &str) -> Option<u32> {
     let data = parse_data(input);
 
-    let result = part_x::<14>(&data);
+    let result = part_x::<14>(data);
 
     Some(result)
 }

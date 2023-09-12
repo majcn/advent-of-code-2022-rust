@@ -1,9 +1,14 @@
-use std::collections::{hash_map::Entry, HashMap};
+use std::collections::hash_map::Entry;
+use std::collections::hash_map::HashMap;
 
 use advent_of_code::util::point::Point;
 
 mod tetris {
-    use advent_of_code::util::point::{Point, DOWN, LEFT, RIGHT};
+    use advent_of_code::util::point::Point;
+    use advent_of_code::util::point::DOWN;
+    use advent_of_code::util::point::LEFT;
+    use advent_of_code::util::point::RIGHT;
+
     use std::collections::hash_map::DefaultHasher;
     use std::collections::HashMap;
     use std::hash::Hasher;
@@ -72,7 +77,7 @@ mod tetris {
                 return true;
             }
 
-            return false;
+            false
         }
 
         fn can_move(&self, to: &Point) -> bool {
@@ -94,7 +99,7 @@ mod tetris {
                 }
             }
 
-            return true;
+            true
         }
 
         pub fn score(&self) -> u32 {
@@ -137,49 +142,29 @@ fn parse_data(input: &str) -> &[u8] {
     input.as_bytes()
 }
 
+const fn as_points(tuples: [(i32, i32); 5]) -> [Point; 5] {
+    [
+        Point::new(tuples[0].0, tuples[0].1),
+        Point::new(tuples[1].0, tuples[1].1),
+        Point::new(tuples[2].0, tuples[2].1),
+        Point::new(tuples[3].0, tuples[3].1),
+        Point::new(tuples[4].0, tuples[4].1),
+    ]
+}
+
 fn part_x<const DURATION: u64, const USE_CACHE: bool>(data: &[u8]) -> u64 {
-    let rocks = vec![
-        [
-            Point { x: 0, y: 0 },
-            Point { x: 0, y: 0 },
-            Point { x: 1, y: 0 },
-            Point { x: 2, y: 0 },
-            Point { x: 3, y: 0 },
-        ],
-        [
-            Point { x: 1, y: 0 },
-            Point { x: 0, y: 1 },
-            Point { x: 1, y: 1 },
-            Point { x: 2, y: 1 },
-            Point { x: 1, y: 2 },
-        ],
-        [
-            Point { x: 0, y: 0 },
-            Point { x: 1, y: 0 },
-            Point { x: 2, y: 0 },
-            Point { x: 2, y: 1 },
-            Point { x: 2, y: 2 },
-        ],
-        [
-            Point { x: 0, y: 0 },
-            Point { x: 0, y: 0 },
-            Point { x: 0, y: 1 },
-            Point { x: 0, y: 2 },
-            Point { x: 0, y: 3 },
-        ],
-        [
-            Point { x: 0, y: 0 },
-            Point { x: 0, y: 0 },
-            Point { x: 1, y: 0 },
-            Point { x: 0, y: 1 },
-            Point { x: 1, y: 1 },
-        ],
+    const ROCKS: [[Point; 5]; 5] = [
+        as_points([(0, 0), (0, 0), (1, 0), (2, 0), (3, 0)]),
+        as_points([(1, 0), (0, 1), (1, 1), (2, 1), (1, 2)]),
+        as_points([(0, 0), (1, 0), (2, 0), (2, 1), (2, 2)]),
+        as_points([(0, 0), (0, 0), (0, 1), (0, 2), (0, 3)]),
+        as_points([(0, 0), (0, 0), (1, 0), (0, 1), (1, 1)]),
     ];
 
     let mut game_duration = DURATION;
     let mut cache_disabled = !USE_CACHE;
 
-    let mut game = tetris::Game::new(rocks[0]);
+    let mut game = tetris::Game::new(ROCKS[0]);
 
     let mut number_of_solid_rocks = 0;
     let mut current_rock_index = 1;
@@ -193,8 +178,8 @@ fn part_x<const DURATION: u64, const USE_CACHE: bool>(data: &[u8]) -> u64 {
         let did_move = game.step(data[direction_index]);
         if !did_move {
             game.transform_to_solid();
-            game.place_rock(rocks[current_rock_index]);
-            current_rock_index = (current_rock_index + 1) % rocks.len();
+            game.place_rock(ROCKS[current_rock_index]);
+            current_rock_index = (current_rock_index + 1) % ROCKS.len();
             number_of_solid_rocks += 1;
 
             if cache_disabled {
@@ -223,7 +208,7 @@ fn part_x<const DURATION: u64, const USE_CACHE: bool>(data: &[u8]) -> u64 {
                     let multiplier = (game_duration - number_of_solid_rocks as u64)
                         / diff_number_of_solid_rocks as u64;
                     game_duration -= diff_number_of_solid_rocks as u64 * multiplier;
-                    additional_score = diff_score as u64 * multiplier as u64;
+                    additional_score = diff_score as u64 * multiplier;
                     cache_disabled = true;
                 }
                 Entry::Vacant(o) => {

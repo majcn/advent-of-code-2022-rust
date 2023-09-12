@@ -1,11 +1,9 @@
 mod interpreter {
     enum Command {
-        NOOP,
-        ADDX(i32),
+        Noop,
+        AddX(i32),
     }
 
-    // TODO; malo poglej tele tipe. malo so smesni
-    // kako se drgac na simpl handla negativne stevilke pri -1
     pub struct Interpreter<'a> {
         program: Vec<&'a str>,
         program_index: usize,
@@ -22,7 +20,7 @@ mod interpreter {
                 program,
                 program_index: 0,
                 current_program_progress: 0,
-                current_command: Command::NOOP,
+                current_command: Command::Noop,
                 register_x: 1,
                 cycle: 0,
                 halt: false,
@@ -35,28 +33,21 @@ mod interpreter {
 
         fn init_next_command(&mut self) {
             let command = self.program[self.program_index];
-            let (command_name, command_value) =
-                command.split_once(" ").unwrap_or_else(|| (command, ""));
+            let (command_name, command_value) = command.split_once(' ').unwrap_or((command, ""));
 
-            match command_name {
-                "noop" => {
-                    self.current_program_progress = 1;
-                    self.current_command = Command::NOOP;
-                }
-                "addx" => {
-                    self.current_program_progress = 2;
-                    self.current_command = Command::ADDX(command_value.parse().unwrap());
-                }
-                _ => {}
-            }
+            (self.current_program_progress, self.current_command) = match command_name {
+                "noop" => (1, Command::Noop),
+                "addx" => (2, Command::AddX(command_value.parse().unwrap())),
+                _ => unreachable!(),
+            };
 
             self.program_index += 1;
         }
 
         fn execute_command(&mut self) {
             self.register_x += match self.current_command {
-                Command::NOOP => 0,
-                Command::ADDX(v) => v,
+                Command::Noop => 0,
+                Command::AddX(v) => v,
             }
         }
 
@@ -115,10 +106,7 @@ pub fn part_two(input: &str) -> Option<String> {
         let x = p.cycle % 40;
         let y = p.cycle / 40;
 
-        display[y][x] = match p.register_x - x as i32 {
-            -1 | 0 | 1 => true,
-            _ => false,
-        };
+        display[y][x] = matches!(p.register_x - x as i32, -1 | 0 | 1);
 
         p.exec_single_cycle();
     }

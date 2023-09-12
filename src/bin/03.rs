@@ -5,7 +5,7 @@ fn parse_data(input: &str) -> Vec<&[u8]> {
 }
 
 fn priority(s: u8) -> u32 {
-    if (b'a'..=b'z').contains(&s) {
+    if s.is_ascii_lowercase() {
         (s as u32) - 96
     } else {
         (s as u32) - 38
@@ -34,7 +34,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     let data = parse_data(input);
 
     let result = data
-        .chunks(3)
+        .chunks_exact(3)
         .map(|c| {
             let p1 = c[0].iter().collect::<BTreeSet<&u8>>();
             let p2 = c[1].iter().collect::<BTreeSet<&u8>>();

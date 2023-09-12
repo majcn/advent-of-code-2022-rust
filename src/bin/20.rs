@@ -6,10 +6,10 @@ mod list {
 
     struct CircualListNode {
         active: bool,
-        pub idx: usize,
-        pub value: i64,
-        pub prev_index: usize,
-        pub next_index: usize,
+        idx: usize,
+        value: i64,
+        prev_index: usize,
+        next_index: usize,
     }
 
     impl CircualList {
@@ -138,34 +138,38 @@ fn parse_data(input: &str) -> Vec<i64> {
 
 fn part_x<const N: usize>(data: &[i64]) -> u64 {
     let mut my_list = list::CircualList::new(data);
-    let mut my_ids = (0..data.len()).into_iter().collect::<Vec<_>>();
+    let mut my_ids = (0..data.len()).collect::<Vec<_>>();
 
     for _ in 0..N {
-        for i in 0..my_ids.len() {
-            let node_idx = my_ids[i];
-            let node_value = my_list.get_node_value(node_idx);
+        // TODO: prej sem imel for i in range in my_ids[i] => kaksna je preferenca?
+        for node_idx in my_ids.iter_mut() {
+            let node_value = my_list.get_node_value(*node_idx);
 
-            if node_value > 0 {
-                my_list.remove_node(node_idx);
+            my_list.remove_node(*node_idx);
 
-                let mut my_next_node_index = my_list.get_node_next(node_idx);
-                let repeat = (node_value % (my_ids.len() as i64 - 1)) - 1;
-                for _ in 0..repeat {
-                    my_next_node_index = my_list.get_node_next(my_next_node_index);
+            let target_index = match Ord::cmp(&node_value, &0) {
+                std::cmp::Ordering::Less => {
+                    let repeat = node_value.abs() % (data.len() as i64 - 1);
+
+                    let mut target_index = my_list.get_node_prev(*node_idx);
+                    for _ in 0..repeat {
+                        target_index = my_list.get_node_prev(target_index);
+                    }
+                    target_index
                 }
+                std::cmp::Ordering::Greater => {
+                    let repeat = (node_value % (data.len() as i64 - 1)) - 1;
 
-                my_ids[i] = my_list.insert_after(my_next_node_index, node_value);
-            } else if node_value < 0 {
-                my_list.remove_node(node_idx);
-
-                let mut target_index = my_list.get_node_prev(node_idx);
-                let repeat = node_value.abs() % (my_ids.len() as i64 - 1);
-                for _ in 0..repeat {
-                    target_index = my_list.get_node_prev(target_index);
+                    let mut target_index = my_list.get_node_next(*node_idx);
+                    for _ in 0..repeat {
+                        target_index = my_list.get_node_next(target_index);
+                    }
+                    target_index
                 }
+                std::cmp::Ordering::Equal => my_list.get_node_prev(*node_idx),
+            };
 
-                my_ids[i] = my_list.insert_after(target_index, node_value);
-            }
+            *node_idx = my_list.insert_after(target_index, node_value);
         }
     }
 

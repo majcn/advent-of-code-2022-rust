@@ -33,7 +33,7 @@ fn parse_data(input: &str) -> Vec<Point3> {
     input
         .lines()
         .map(|line| {
-            let mut iter = line.splitn(3, ",");
+            let mut iter = line.splitn(3, ',');
             Point3 {
                 x: iter.next().unwrap().parse().unwrap(),
                 y: iter.next().unwrap().parse().unwrap(),

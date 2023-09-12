@@ -1,8 +1,10 @@
-use std::collections::{HashMap, HashSet, VecDeque};
-
 use regex::Regex;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::collections::VecDeque;
 
-type ValveName = [u8; 2];
+type ValveName = [char; 2];
+type ValveArray = HashMap<ValveName, Valve>;
 
 struct Valve {
     name: ValveName,
@@ -10,38 +12,25 @@ struct Valve {
     tunnels: Vec<ValveName>,
 }
 
-struct ValveArray {
-    raw_data: HashMap<ValveName, Valve>,
-}
-
 fn parse_data(input: &str) -> ValveArray {
     let re_str: &str = r"Valve ([A-Z][A-Z]) has flow rate=(\d+); tunnels? leads? to valves? ((?:[A-Z][A-Z](?:, )?)+)$";
     let re = Regex::new(re_str).unwrap();
 
     fn str_to_valve_name(s: &str) -> ValveName {
-        let mut iter = s.as_bytes().iter();
-        [*iter.next().unwrap(), *iter.next().unwrap()]
+        let mut iter = s.chars();
+        [iter.next().unwrap(), iter.next().unwrap()]
     }
 
-    let valves = input
+    input
         .lines()
-        .map(|x| {
-            let captures = re.captures(x).unwrap();
-            let (_, [name, flow_rate, tunnel_names]) = captures.extract();
-            Valve {
-                name: str_to_valve_name(name),
-                flow_rate: flow_rate.parse().unwrap(),
-                tunnels: tunnel_names.split(", ").map(str_to_valve_name).collect(),
-            }
+        .map(|x| re.captures(x).unwrap().extract())
+        .map(|(_, [name, flow_rate, tunnel_names])| Valve {
+            name: str_to_valve_name(name),
+            flow_rate: flow_rate.parse().unwrap(),
+            tunnels: tunnel_names.split(", ").map(str_to_valve_name).collect(),
         })
-        .collect::<Vec<_>>();
-
-    let mut result = HashMap::with_capacity(valves.len());
-    for valve in valves {
-        result.insert(valve.name, valve);
-    }
-
-    ValveArray { raw_data: result }
+        .map(|v| (v.name, v))
+        .collect()
 }
 
 fn bfs(data: &ValveArray, start_node_name: ValveName, end_node_name: ValveName) -> Option<u32> {
@@ -56,7 +45,7 @@ fn bfs(data: &ValveArray, start_node_name: ValveName, end_node_name: ValveName) 
             return Some(time);
         }
 
-        for neighbor_name in data.raw_data[&node_name].tunnels.iter() {
+        for neighbor_name in data[&node_name].tunnels.iter() {
             if !visited.contains(neighbor_name) {
                 queue.push_back((*neighbor_name, time + 1));
                 visited.insert(*neighbor_name);
@@ -108,8 +97,8 @@ fn get_next_states(
             continue;
         }
 
-        let new_pressure_released = state.pressure_released
-            + (max_time - new_time) * data.raw_data[&valve_path.0].flow_rate;
+        let new_pressure_released =
+            state.pressure_released + (max_time - new_time) * data[&valve_path.0].flow_rate;
 
         let mut new_opened_valves = HashSet::with_capacity(state.opened_valves.len() + 1);
         new_opened_valves.extend(state.opened_valves.iter());
@@ -129,8 +118,8 @@ fn get_next_states(
 fn part_x<const T: u32>(data: &ValveArray) -> Vec<State> {
     let mut valve_paths: HashMap<ValveName, Vec<(ValveName, u32)>> = HashMap::new();
 
-    for (i, v1) in data.raw_data.values().enumerate() {
-        for (j, v2) in data.raw_data.values().enumerate() {
+    for (i, v1) in data.values().enumerate() {
+        for (j, v2) in data.values().enumerate() {
             if i != j && v2.flow_rate > 0 {
                 let p = valve_paths.entry(v1.name).or_insert(vec![]);
                 p.push((v2.name, bfs(data, v1.name, v2.name).unwrap() + 1));
@@ -140,7 +129,7 @@ fn part_x<const T: u32>(data: &ValveArray) -> Vec<State> {
 
     let init_state = State {
         time: 0,
-        location: [b'A', b'A'],
+        location: ['A', 'A'],
         pressure_released: 0,
         opened_valves: HashSet::new(),
     };

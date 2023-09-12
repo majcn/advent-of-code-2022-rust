@@ -1,5 +1,7 @@
 use regex::Regex;
 
+use advent_of_code::util::parse::ParseRegex;
+
 struct Command {
     n: usize,
     from: usize,
@@ -13,15 +15,13 @@ fn parse_data(input: &str) -> (State, Vec<Command>) {
     let (state_lines, command_lines) = input.split_once("\n\n").unwrap();
 
     let re = Regex::new(r"^move (\d+) from (\d+) to (\d+)$").unwrap();
-    let commands: Vec<Command> = command_lines
+    let commands = command_lines
         .lines()
-        .map(|x| {
-            let captures = re.captures(x).unwrap();
-            Command {
-                n: captures[1].parse().unwrap(),
-                from: captures[2].parse::<usize>().unwrap() - 1,
-                to: captures[3].parse::<usize>().unwrap() - 1,
-            }
+        .map(|x| re.parse_usize(x))
+        .map(|[n, from, to]| Command {
+            n,
+            from: from - 1,
+            to: to - 1,
         })
         .collect();
 
@@ -42,8 +42,7 @@ fn parse_data(input: &str) -> (State, Vec<Command>) {
 }
 
 pub fn part_one(input: &str) -> Option<String> {
-    let (state_original, commands) = parse_data(input);
-    let mut state = state_original.clone(); // to_vec();? // TODO: preveri ce to sploh dela na tak nacin (nested?)
+    let (mut state, commands) = parse_data(input);
 
     for command in commands {
         let mut stack_from = std::mem::take(&mut state[command.from]);
@@ -59,8 +58,7 @@ pub fn part_one(input: &str) -> Option<String> {
 }
 
 pub fn part_two(input: &str) -> Option<String> {
-    let (state_original, commands) = parse_data(input);
-    let mut state = state_original.iter().cloned().collect::<Vec<_>>(); // TODO: preveri ce to sploh dela na tak nacin
+    let (mut state, commands) = parse_data(input);
 
     for command in commands {
         let mut stack_from = std::mem::take(&mut state[command.from]);
