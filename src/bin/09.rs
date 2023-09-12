@@ -1,6 +1,10 @@
 use std::collections::HashSet;
 
-use advent_of_code::util::point::{Point, DOWN, LEFT, RIGHT, UP};
+use advent_of_code::util::point::Point;
+use advent_of_code::util::point::DOWN;
+use advent_of_code::util::point::LEFT;
+use advent_of_code::util::point::RIGHT;
+use advent_of_code::util::point::UP;
 
 struct Command {
     direction: u8,
@@ -19,10 +23,10 @@ fn parse_data(input: &str) -> Vec<Command> {
 }
 
 fn part_x<const N: usize>(data: &[Command]) -> u32 {
-    let mut rope = vec![Point { x: 0, y: 0 }; N];
+    let mut rope = vec![Point::new(0, 0); N];
 
     let mut visited = HashSet::new();
-    visited.insert(Point { x: 0, y: 0 });
+    visited.insert(Point::new(0, 0));
     for command in data {
         for _ in 0..command.steps {
             match command.direction {
@@ -37,7 +41,7 @@ fn part_x<const N: usize>(data: &[Command]) -> u32 {
                 let head = rope[(i - 1) as usize];
                 let tail = &mut rope[i as usize];
 
-                if i32::abs(head.x - tail.x) > 1 || i32::abs(head.y - tail.y) > 1 {
+                if (head.x - tail.x).abs() > 1 || (head.y - tail.y).abs() > 1 {
                     let diff_x = if head.x < tail.x {
                         -1
                     } else if head.x > tail.x {
@@ -54,16 +58,11 @@ fn part_x<const N: usize>(data: &[Command]) -> u32 {
                         0
                     };
 
-                    let diff_point = Point {
-                        x: diff_x,
-                        y: diff_y,
-                    };
-
-                    *tail += diff_point;
+                    *tail += Point::new(diff_x, diff_y);
                 }
             }
 
-            visited.insert(rope.iter().last().copied().unwrap());
+            visited.insert(rope.last().copied().unwrap());
         }
     }
 

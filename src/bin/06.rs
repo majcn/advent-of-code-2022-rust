@@ -1,12 +1,12 @@
 use std::collections::HashSet;
 
-fn parse_data(input: &str) -> Vec<char> {
-    input.chars().collect()
+fn parse_data(input: &str) -> &[u8] {
+    input.as_bytes()
 }
 
-fn part_x<const N: usize>(data: &[char]) -> u32 {
+fn part_x<const N: usize>(data: &[u8]) -> u32 {
     data.windows(N)
-        .position(|w| w.iter().collect::<HashSet<&char>>().len() == N) // TODO: zakaj to dela? .copied()?
+        .position(|w| w.iter().collect::<HashSet<&u8>>().len() == N) // TODO: zakaj to dela? .copied()?
         .map(|x| x + N)
         .unwrap() as u32
 }

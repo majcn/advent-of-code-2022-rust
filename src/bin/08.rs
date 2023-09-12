@@ -116,7 +116,7 @@ pub fn part_two(input: &str) -> Option<u32> {
             }
             tmp_result *= c;
 
-            result = std::cmp::max(result, tmp_result);
+            result = u32::max(result, tmp_result);
         }
     }
 

@@ -1,5 +1,6 @@
 use regex::Regex;
-use std::{collections::HashSet, ops::RangeInclusive};
+use std::collections::BTreeSet;
+use std::ops::RangeInclusive;
 
 fn parse_data(input: &str) -> Vec<(RangeInclusive<u32>, RangeInclusive<u32>)> {
     let re = Regex::new(r"^(\d+)-(\d+),(\d+)-(\d+)$").unwrap();
@@ -23,7 +24,7 @@ pub fn part_one(input: &str) -> Option<u32> {
 
     let result = data
         .into_iter()
-        .map(|(r1, r2)| (r1.collect::<HashSet<u32>>(), r2.collect::<HashSet<u32>>()))
+        .map(|(r1, r2)| (r1.collect::<BTreeSet<u32>>(), r2.collect::<BTreeSet<u32>>()))
         .filter(|(s1, s2)| {
             if s1.len() > s2.len() {
                 s2.is_subset(s1)
@@ -41,7 +42,7 @@ pub fn part_two(input: &str) -> Option<u32> {
 
     let result = data
         .into_iter()
-        .map(|(r1, r2)| (r1.collect::<HashSet<u32>>(), r2.collect::<HashSet<u32>>()))
+        .map(|(r1, r2)| (r1.collect::<BTreeSet<u32>>(), r2.collect::<BTreeSet<u32>>()))
         .filter(|(s1, s2)| !s1.is_disjoint(s2))
         .count() as u32;
 

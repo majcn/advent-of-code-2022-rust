@@ -1,5 +1,4 @@
 use regex::Regex;
-use std::str;
 
 struct Command {
     n: usize,
@@ -28,7 +27,7 @@ fn parse_data(input: &str) -> (State, Vec<Command>) {
 
     let state_lines: Vec<&str> = state_lines.lines().rev().skip(1).collect();
 
-    let mut state: Vec<Vec<char>> = vec![Vec::new(); (state_lines[0].len() + 1) / 4];
+    let mut state: Vec<Vec<char>> = vec![vec![]; (state_lines[0].len() + 1) / 4];
     for row in state_lines {
         for (i, c) in row.chars().skip(1).step_by(4).enumerate() {
             if c.is_whitespace() {
@@ -44,11 +43,7 @@ fn parse_data(input: &str) -> (State, Vec<Command>) {
 
 pub fn part_one(input: &str) -> Option<String> {
     let (state_original, commands) = parse_data(input);
-    // let mut state = Vec::with_capacity(state_original.len()); // TODO: a se do kaj kej lepse resit? obcutek imam da ce bi dal samo clone da ne bi kloniral inner vectorja
-    // for state_original_el in state_original {
-    //     state.push(state_original_el.clone()); // TODO: saj to naredi kopijo celotnega lista?
-    // }
-    let mut state = state_original.iter().cloned().collect::<Vec<_>>(); // TODO: preveri ce to sploh dela na tak nacin
+    let mut state = state_original.clone(); // to_vec();? // TODO: preveri ce to sploh dela na tak nacin (nested?)
 
     for command in commands {
         let mut stack_from = std::mem::take(&mut state[command.from]);

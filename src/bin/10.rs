@@ -11,8 +11,8 @@ mod interpreter {
         program_index: usize,
         current_program_progress: u8,
         current_command: Command,
-        pub register_x: i128,
-        pub cycle: u64,
+        pub register_x: i32,
+        pub cycle: usize,
         pub halt: bool,
     }
 
@@ -54,9 +54,9 @@ mod interpreter {
         }
 
         fn execute_command(&mut self) {
-            match self.current_command {
-                Command::NOOP => {}
-                Command::ADDX(v) => self.register_x += v as i128,
+            self.register_x += match self.current_command {
+                Command::NOOP => 0,
+                Command::ADDX(v) => v,
             }
         }
 
@@ -87,17 +87,17 @@ fn parse_data(input: &str) -> Vec<&str> {
     input.lines().collect()
 }
 
-pub fn part_one(input: &str) -> Option<u64> {
+pub fn part_one(input: &str) -> Option<u32> {
     let data = parse_data(input);
 
     let mut result = 0;
 
     let mut p = interpreter::Interpreter::new(data);
     while !p.halt {
-        match p.cycle + 1 {
-            20 | 60 | 100 | 140 | 180 | 220 => result += (p.cycle + 1) * (p.register_x as u64),
-            _ => {}
-        }
+        result += match p.cycle + 1 {
+            20 | 60 | 100 | 140 | 180 | 220 => (p.cycle as u32 + 1) * (p.register_x as u32),
+            _ => 0,
+        };
 
         p.exec_single_cycle();
     }
@@ -108,24 +108,24 @@ pub fn part_one(input: &str) -> Option<u64> {
 pub fn part_two(input: &str) -> Option<String> {
     let data = parse_data(input);
 
-    let mut display = [[' '; 40]; 6];
+    let mut display = [[false; 40]; 6];
 
     let mut p = interpreter::Interpreter::new(data);
     while !p.halt {
-        let x = (p.cycle % 40) as i128;
-        let y = (p.cycle / 40) as i128;
+        let x = p.cycle % 40;
+        let y = p.cycle / 40;
 
-        // TODO: se da tole resit z match (ce je sploh smiselno)
-        if x >= p.register_x - 1 && x <= p.register_x + 1 {
-            display[y as usize][x as usize] = '#';
-        }
+        display[y][x] = match p.register_x - x as i32 {
+            -1 | 0 | 1 => true,
+            _ => false,
+        };
 
         p.exec_single_cycle();
     }
 
     let mut result = String::with_capacity(display.len() * (display[0].len() + 1));
     for line in display {
-        result.extend(line.iter());
+        result.extend(line.into_iter().map(|x| if x { '#' } else { ' ' }));
         result.push('\n');
     }
 

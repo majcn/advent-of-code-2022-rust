@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 fn parse_data(input: &str) -> Vec<(u8, u8)> {
     input
         .lines()
@@ -11,19 +9,23 @@ fn parse_data(input: &str) -> Vec<(u8, u8)> {
 pub fn part_one(input: &str) -> Option<u32> {
     let data = parse_data(input);
 
-    let score = HashMap::from([
-        ((b'A', b'X'), 3 + 1),
-        ((b'A', b'Y'), 6 + 2),
-        ((b'A', b'Z'), 0 + 3),
-        ((b'B', b'X'), 0 + 1),
-        ((b'B', b'Y'), 3 + 2),
-        ((b'B', b'Z'), 6 + 3),
-        ((b'C', b'X'), 6 + 1),
-        ((b'C', b'Y'), 0 + 2),
-        ((b'C', b'Z'), 3 + 3),
-    ]);
+    // TODO: const fn VS fn?
+    fn score((x, y): (u8, u8)) -> u32 {
+        match (x, y) {
+            (b'A', b'X') => 3 + 1,
+            (b'A', b'Y') => 6 + 2,
+            (b'A', b'Z') => 0 + 3,
+            (b'B', b'X') => 0 + 1,
+            (b'B', b'Y') => 3 + 2,
+            (b'B', b'Z') => 6 + 3,
+            (b'C', b'X') => 6 + 1,
+            (b'C', b'Y') => 0 + 2,
+            (b'C', b'Z') => 3 + 3,
+            _ => unreachable!(),
+        }
+    }
 
-    let result = data.iter().map(|x| score[x]).sum();
+    let result = data.into_iter().map(score).sum();
 
     Some(result)
 }
@@ -31,19 +33,22 @@ pub fn part_one(input: &str) -> Option<u32> {
 pub fn part_two(input: &str) -> Option<u32> {
     let data = parse_data(input);
 
-    let score = HashMap::from([
-        ((b'A', b'X'), 0 + 3),
-        ((b'A', b'Y'), 3 + 1),
-        ((b'A', b'Z'), 6 + 2),
-        ((b'B', b'X'), 0 + 1),
-        ((b'B', b'Y'), 3 + 2),
-        ((b'B', b'Z'), 6 + 3),
-        ((b'C', b'X'), 0 + 2),
-        ((b'C', b'Y'), 3 + 3),
-        ((b'C', b'Z'), 6 + 1),
-    ]);
+    fn score((x, y): (u8, u8)) -> u32 {
+        match (x, y) {
+            (b'A', b'X') => 0 + 3,
+            (b'A', b'Y') => 3 + 1,
+            (b'A', b'Z') => 6 + 2,
+            (b'B', b'X') => 0 + 1,
+            (b'B', b'Y') => 3 + 2,
+            (b'B', b'Z') => 6 + 3,
+            (b'C', b'X') => 0 + 2,
+            (b'C', b'Y') => 3 + 3,
+            (b'C', b'Z') => 6 + 1,
+            _ => unreachable!(),
+        }
+    }
 
-    let result = data.iter().map(|x| score[x]).sum();
+    let result = data.into_iter().map(score).sum();
 
     Some(result)
 }

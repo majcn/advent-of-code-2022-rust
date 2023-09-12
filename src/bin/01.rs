@@ -14,7 +14,7 @@ fn part_x(data: Vec<Vec<u32>>) -> Vec<u32> {
 pub fn part_one(input: &str) -> Option<u32> {
     let data = parse_data(input);
 
-    let result = part_x(data).last().copied();
+    let result = part_x(data).into_iter().rev().next();
 
     result
 }
@@ -22,7 +22,7 @@ pub fn part_one(input: &str) -> Option<u32> {
 pub fn part_two(input: &str) -> Option<u32> {
     let data = parse_data(input);
 
-    let result = part_x(data).iter().rev().take(3).sum(); // TODO: iter vs into_iter?
+    let result = part_x(data).into_iter().rev().take(3).sum(); // TODO: iter vs into_iter?
 
     Some(result)
 }
