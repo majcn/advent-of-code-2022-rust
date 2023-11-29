@@ -1,3 +1,5 @@
+advent_of_code::solution!(16);
+
 use regex::Regex;
 use std::collections::HashMap;
 use std::collections::HashSet;
@@ -121,7 +123,7 @@ fn part_x<const T: u32>(data: &ValveArray) -> Vec<State> {
     for (i, v1) in data.values().enumerate() {
         for (j, v2) in data.values().enumerate() {
             if i != j && v2.flow_rate > 0 {
-                let p = valve_paths.entry(v1.name).or_insert(vec![]);
+                let p = valve_paths.entry(v1.name).or_default();
                 p.push((v2.name, bfs(data, v1.name, v2.name).unwrap() + 1));
             }
         }
@@ -176,25 +178,19 @@ pub fn part_two(input: &str) -> Option<u32> {
     Some(result)
 }
 
-fn main() {
-    let input = &advent_of_code::read_file("inputs", 16);
-    advent_of_code::solve!(1, part_one, input);
-    advent_of_code::solve!(2, part_two, input);
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn test_part_one() {
-        let input = advent_of_code::read_file("examples", 16);
-        assert_eq!(part_one(&input), Some(1651));
+        let result = part_one(&advent_of_code::template::read_file("examples", DAY));
+        assert_eq!(result, Some(1651));
     }
 
     #[test]
     fn test_part_two() {
-        let input = advent_of_code::read_file("examples", 16);
-        assert_eq!(part_two(&input), Some(1707));
+        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
+        assert_eq!(result, Some(1707));
     }
 }

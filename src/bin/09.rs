@@ -1,3 +1,5 @@
+advent_of_code::solution!(9);
+
 use std::collections::HashSet;
 
 use advent_of_code::util::point::Point;
@@ -81,25 +83,19 @@ pub fn part_two(input: &str) -> Option<u32> {
     Some(result)
 }
 
-fn main() {
-    let input = &advent_of_code::read_file("inputs", 9);
-    advent_of_code::solve!(1, part_one, input);
-    advent_of_code::solve!(2, part_two, input);
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn test_part_one() {
-        let input = advent_of_code::read_file("examples", 9);
-        assert_eq!(part_one(&input), Some(88));
+        let result = part_one(&advent_of_code::template::read_file("examples", DAY));
+        assert_eq!(result, Some(88));
     }
 
     #[test]
     fn test_part_two() {
-        let input = advent_of_code::read_file("examples", 9);
-        assert_eq!(part_two(&input), Some(36));
+        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
+        assert_eq!(result, Some(36));
     }
 }

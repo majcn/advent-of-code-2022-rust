@@ -1,3 +1,5 @@
+advent_of_code::solution!(10);
+
 mod interpreter {
     enum Command {
         Noop,
@@ -106,7 +108,7 @@ pub fn part_two(input: &str) -> Option<String> {
         let x = p.cycle % 40;
         let y = p.cycle / 40;
 
-        display[y][x] = matches!(p.register_x - x as i32, -1 | 0 | 1);
+        display[y][x] = matches!(p.register_x - x as i32, -1..=1);
 
         p.exec_single_cycle();
     }
@@ -120,27 +122,21 @@ pub fn part_two(input: &str) -> Option<String> {
     Some(result)
 }
 
-fn main() {
-    let input = &advent_of_code::read_file("inputs", 10);
-    advent_of_code::solve!(1, part_one, input);
-    advent_of_code::solve!(2, part_two, input);
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn test_part_one() {
-        let input = advent_of_code::read_file("examples", 10);
-        assert_eq!(part_one(&input), Some(13140));
+        let result = part_one(&advent_of_code::template::read_file("examples", DAY));
+        assert_eq!(result, Some(13140));
     }
 
     #[test]
     fn test_part_two() {
-        let input = advent_of_code::read_file("examples", 10);
+        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
         assert_eq!(
-            part_two(&input),
+            result,
             Some(String::from(
                 r#"
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  

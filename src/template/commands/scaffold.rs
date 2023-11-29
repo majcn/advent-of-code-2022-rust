@@ -1,26 +1,19 @@
-/*
- * This file contains template code.
- * There is no need to edit this file unless you want to change template functionality.
- */
 use std::{
     fs::{File, OpenOptions},
     io::Write,
     process,
 };
 
-#[allow(clippy::needless_raw_string_hashes)]
-const MODULE_TEMPLATE: &str = r###"pub fn part_one(input: &str) -> Option<u32> {
+use crate::Day;
+
+const MODULE_TEMPLATE: &str = r#"advent_of_code::solution!(DAY_NUMBER);
+
+pub fn part_one(input: &str) -> Option<u32> {
     None
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
     None
-}
-
-fn main() {
-    let input = &advent_of_code::read_file("inputs", DAY);
-    advent_of_code::solve!(1, part_one, input);
-    advent_of_code::solve!(2, part_two, input);
 }
 
 #[cfg(test)]
@@ -29,22 +22,17 @@ mod tests {
 
     #[test]
     fn test_part_one() {
-        let input = advent_of_code::read_file("examples", DAY);
-        assert_eq!(part_one(&input), None);
+        let result = part_one(&advent_of_code::template::read_file("examples", DAY));
+        assert_eq!(result, None);
     }
 
     #[test]
     fn test_part_two() {
-        let input = advent_of_code::read_file("examples", DAY);
-        assert_eq!(part_two(&input), None);
+        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
+        assert_eq!(result, None);
     }
 }
-"###;
-
-fn parse_args() -> Result<u8, pico_args::Error> {
-    let mut args = pico_args::Arguments::from_env();
-    args.free_from_str()
-}
+"#;
 
 fn safe_create_file(path: &str) -> Result<File, std::io::Error> {
     OpenOptions::new().write(true).create_new(true).open(path)
@@ -54,20 +42,10 @@ fn create_file(path: &str) -> Result<File, std::io::Error> {
     OpenOptions::new().write(true).create(true).open(path)
 }
 
-fn main() {
-    let day = match parse_args() {
-        Ok(day) => day,
-        Err(_) => {
-            eprintln!("Need to specify a day (as integer). example: `cargo scaffold 7`");
-            process::exit(1);
-        }
-    };
-
-    let day_padded = format!("{day:02}");
-
-    let input_path = format!("src/inputs/{day_padded}.txt");
-    let example_path = format!("src/examples/{day_padded}.txt");
-    let module_path = format!("src/bin/{day_padded}.rs");
+pub fn handle(day: Day) {
+    let input_path = format!("data/inputs/{day}.txt");
+    let example_path = format!("data/examples/{day}.txt");
+    let module_path = format!("src/bin/{day}.rs");
 
     let mut file = match safe_create_file(&module_path) {
         Ok(file) => file,
@@ -77,8 +55,12 @@ fn main() {
         }
     };
 
-    match file.write_all(MODULE_TEMPLATE.replace("DAY", &day.to_string()).as_bytes()) {
-        Ok(_) => {
+    match file.write_all(
+        MODULE_TEMPLATE
+            .replace("DAY_NUMBER", &day.into_inner().to_string())
+            .as_bytes(),
+    ) {
+        Ok(()) => {
             println!("Created module file \"{}\"", &module_path);
         }
         Err(e) => {
@@ -108,8 +90,5 @@ fn main() {
     }
 
     println!("---");
-    println!(
-        "🎄 Type `cargo solve {}` to run your solution.",
-        &day_padded
-    );
+    println!("🎄 Type `cargo solve {}` to run your solution.", day);
 }

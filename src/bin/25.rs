@@ -1,3 +1,5 @@
+advent_of_code::solution!(25);
+
 fn parse_data(input: &str) -> Vec<&[u8]> {
     input.lines().map(|x| x.as_bytes()).collect()
 }
@@ -47,25 +49,19 @@ pub fn part_two(_: &str) -> Option<String> {
     Some(String::from("⭐️⭐️"))
 }
 
-fn main() {
-    let input = &advent_of_code::read_file("inputs", 25);
-    advent_of_code::solve!(1, part_one, input);
-    advent_of_code::solve!(2, part_two, input);
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn test_part_one() {
-        let input = advent_of_code::read_file("examples", 25);
-        assert_eq!(part_one(&input), Some(String::from("2=-1=0")));
+        let result = part_one(&advent_of_code::template::read_file("examples", DAY));
+        assert_eq!(result, Some(String::from("2=-1=0")));
     }
 
     #[test]
     fn test_part_two() {
-        let input = advent_of_code::read_file("examples", 25);
-        assert_eq!(part_two(&input), Some(String::from("⭐️⭐️")));
+        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
+        assert_eq!(result, Some(String::from("⭐️⭐️")));
     }
 }
