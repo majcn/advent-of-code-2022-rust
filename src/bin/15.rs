@@ -3,8 +3,8 @@ advent_of_code::solution!(15);
 use regex::Regex;
 use std::collections::BTreeSet;
 
-use advent_of_code::util::parse::ParseRegex;
-use advent_of_code::util::point::Point;
+use advent_of_code::majcn::parse::ParseRegex;
+use advent_of_code::majcn::point::Point;
 
 struct Range {
     min: i32,

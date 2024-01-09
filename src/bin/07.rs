@@ -1,6 +1,6 @@
 advent_of_code::solution!(7);
 
-use advent_of_code::util::grid::ArenaTree;
+use advent_of_code::majcn::grid::ArenaTree;
 
 enum NodeValueEnum {
     File(u32),

@@ -5,11 +5,11 @@ use std::collections::BinaryHeap;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-use advent_of_code::util::point::Point;
-use advent_of_code::util::point::DOWN;
-use advent_of_code::util::point::LEFT;
-use advent_of_code::util::point::RIGHT;
-use advent_of_code::util::point::UP;
+use advent_of_code::majcn::point::Point;
+use advent_of_code::majcn::point::DOWN;
+use advent_of_code::majcn::point::LEFT;
+use advent_of_code::majcn::point::RIGHT;
+use advent_of_code::majcn::point::UP;
 
 struct Node {
     mark: u8,

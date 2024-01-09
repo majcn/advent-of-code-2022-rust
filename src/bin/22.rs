@@ -1,6 +1,6 @@
 advent_of_code::solution!(22);
 
-use advent_of_code::util::list::Array2D;
+use advent_of_code::majcn::list::Array2D;
 
 enum Cell {
     Wall,

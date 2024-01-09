@@ -2,7 +2,7 @@ advent_of_code::solution!(5);
 
 use regex::Regex;
 
-use advent_of_code::util::parse::ParseRegex;
+use advent_of_code::majcn::parse::ParseRegex;
 
 struct Command {
     n: usize,

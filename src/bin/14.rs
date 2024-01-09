@@ -2,7 +2,7 @@ advent_of_code::solution!(14);
 
 use std::collections::HashSet;
 
-use advent_of_code::util::point::Point;
+use advent_of_code::majcn::point::Point;
 
 fn parse_data(input: &str) -> Vec<Vec<Point>> {
     fn parse_line(line: &str) -> Vec<Point> {

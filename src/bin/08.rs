@@ -2,7 +2,7 @@ advent_of_code::solution!(8);
 
 use std::collections::HashSet;
 
-use advent_of_code::util::list::Array2D;
+use advent_of_code::majcn::list::Array2D;
 
 fn parse_data(input: &str) -> Array2D<i32> {
     let line_size = input.lines().next().unwrap().len();

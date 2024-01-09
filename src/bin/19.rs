@@ -4,7 +4,7 @@ use regex::Regex;
 use std::collections::HashSet;
 use std::collections::VecDeque;
 
-use advent_of_code::util::parse::ParseRegex;
+use advent_of_code::majcn::parse::ParseRegex;
 
 struct Blueprint {
     id: u32,

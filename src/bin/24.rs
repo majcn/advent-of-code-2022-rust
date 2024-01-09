@@ -6,7 +6,7 @@ use std::collections::VecDeque;
 use std::ops::Add;
 use std::ops::Rem;
 
-use advent_of_code::util::point::Point;
+use advent_of_code::majcn::point::Point;
 
 enum Direction {
     Up,

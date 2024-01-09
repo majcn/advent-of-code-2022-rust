@@ -3,7 +3,7 @@ advent_of_code::solution!(23);
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-use advent_of_code::util::point::Point;
+use advent_of_code::majcn::point::Point;
 
 enum CardinalDirection {
     North,

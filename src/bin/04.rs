@@ -4,7 +4,7 @@ use regex::Regex;
 use std::collections::BTreeSet;
 use std::ops::RangeInclusive;
 
-use advent_of_code::util::parse::ParseRegex;
+use advent_of_code::majcn::parse::ParseRegex;
 
 fn parse_data(input: &str) -> Vec<(RangeInclusive<u32>, RangeInclusive<u32>)> {
     let re = Regex::new(r"^(\d+)-(\d+),(\d+)-(\d+)$").unwrap();
